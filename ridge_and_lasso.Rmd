@@ -4,7 +4,6 @@ author: "Lin Yang"
 output: github_document
 --- 
 
-\newpage
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -19,4 +18,65 @@ library(plotmo)#plotmodel, generate trace plot
 ```
 
 Predict a baseball player’s salary on the basis of various statistics associated with performance in the previous year. Use `?Hitters` for more details.
+
+```{r}
+data(Hitters)
+Hitters <- na.omit(Hitters)
+Hitters2 <- model.matrix(Salary ~ ., Hitters)[ ,-1]
+
+set.seed(1)
+trainRows <- createDataPartition(y = Hitters$Salary,
+                                 p = 0.8,
+                                 list = FALSE)
+
+x <- Hitters2[trainRows,]
+y <- Hitters[trainRows]
+
+corrplot(cor(x), method = "circle", type = "full")
+```
+
+## Ridge
+
+```{r}
+ridge_mod <- glmnet(x = x, y = y,
+                    standardize = TRUE,
+                    alpha = 0,
+                    lambda = exp(seq(10, -2, length = 100)))
+
+mat.coef <- coef(ridge_mod)
+dim(mat.coef)
+```
+
+### Trace Plot
+
+```{r}
+plot_glmnet(ridge_mod, xvar = "rlambda", label = 19)
+plot(ridge_mod, xvar = "lambda", label = TRUE)
+```
+
+### Cross-validation
+
+```{r}
+set.seed(2)
+cv.ridge <- cv.glmnet(x, as.numeric(y),
+                      type.measure = "mse",
+                      alpha = 0,
+                      lambda = exp(seq(10, -2, length = 100)))
+plot(cv.ridge)
+abline(h = (cv.ridge$cvm + cv.ridge$cvsd)[which.min(cv.ridge$cvm)], col = 4, lwd = 2)
+
+cv.ridge$lambda.min
+cv.ridge$lambda.1se
+```
+
+### Coefficients of the final model
+
+```{r}
+predict(cv.ridge, s = cv.ridge$lambda.min, type = "coefficients")
+head(predict(cv.ridge, newx = Hitters2[-trainRows,],
+             s = "lambda.min", type = "response"))
+```
+
+
+
 
