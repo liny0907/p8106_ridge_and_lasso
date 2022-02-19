@@ -1,1 +1,1 @@
-# p8106_ridge_and_lasso
+This is the repository for ridge regression and lasso.

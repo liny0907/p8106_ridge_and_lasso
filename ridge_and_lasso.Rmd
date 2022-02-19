@@ -1,0 +1,22 @@
+---
+title: "Ridge Regression and Lasso"
+author: "Lin Yang"
+output: github_document
+--- 
+
+\newpage
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = T, message = FALSE, results='hide', warning=FALSE}
+library(ISLR) #only for data
+library(glmnet) #for regularized regression, can do all three models
+library(caret)
+library(corrplot)
+library(plotmo)#plotmodel, generate trace plot
+```
+
+Predict a baseball player’s salary on the basis of various statistics associated with performance in the previous year. Use `?Hitters` for more details.
+
